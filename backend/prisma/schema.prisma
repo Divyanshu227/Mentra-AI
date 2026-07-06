@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -27,6 +26,7 @@ model User {
   updatedAt      DateTime  @updatedAt
 
   refreshTokens  RefreshToken[]
+  quizzes        Quiz[]
 }
 
 model RefreshToken {
@@ -42,4 +42,27 @@ model RefreshToken {
 enum Role {
   STUDENT
   ADMIN
+}
+
+model Quiz {
+  id          String     @id @default(uuid())
+  title       String
+  topic       String?
+  difficulty  String?    // e.g., "easy", "medium", "hard"
+  userId      String?    // Optional, if user is not logged in or for anonymous users
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions   Question[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  quizId        String
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  text          String
+  options       String[] // JSON array of strings
+  correctAnswer String   // The correct option
+  explanation   String?
+  createdAt     DateTime @default(now())
 }

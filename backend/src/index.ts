@@ -1,9 +1,7 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-
-dotenv.config();
 
 const app = express();
 
@@ -16,8 +14,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 import authRoutes from './routes/auth.routes';
+import quizRoutes from './routes/quiz.routes';
 
 app.use('/api/auth', authRoutes);
+app.use('/api/quiz', quizRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Mentra AI backend is running.' });
