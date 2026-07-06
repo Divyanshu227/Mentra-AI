@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  passwordHash   String?   
+  googleId       String?   @unique
+  githubId       String?   @unique
+  name           String?
+  avatarUrl      String?
+  role           Role      @default(STUDENT)
+  isVerified     Boolean   @default(false)
+  
+  // Cognitive Profile details (from onboarding)
+  degree         String?
+  semester       Int?
+  targetCgpa     Float?
+  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  refreshTokens  RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revoked   Boolean  @default(false)
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
