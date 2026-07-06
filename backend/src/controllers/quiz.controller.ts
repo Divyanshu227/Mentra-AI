@@ -3,8 +3,8 @@ import { prisma } from '../utils/prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+// Will be initialized inside the function to ensure env vars are loaded
+let genAI: GoogleGenerativeAI;
 
 export const generateQuiz = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -16,8 +16,12 @@ export const generateQuiz = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
+    if (!genAI) {
+      genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+    }
+
     // Determine the model
-    const modelName = 'gemini-1.5-flash';
+    const modelName = 'gemini-2.5-flash';
     // For now, web search might require specific tools config for gemini
     const tools = useWebSearch === 'true' ? [{ googleSearch: {} }] : undefined;
     const model = genAI.getGenerativeModel({ model: modelName, tools });
@@ -63,17 +67,32 @@ You must respond with a strict JSON object (and absolutely nothing else) in the 
       });
     }
 
+    console.log('--- Generating Quiz ---');
+    console.log('Model:', modelName);
+    console.log('Prompt exists:', !!prompt, 'File exists:', !!file);
+    console.log('Calling Gemini API...');
+
     const result = await model.generateContent(parts);
-    const responseText = result.response.text();
+    console.log('Received response from Gemini');
     
-    // Clean up JSON block if present
-    const cleanedJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+    const responseText = result.response.text();
+    console.log('Raw AI Response:', responseText.substring(0, 200) + '...');
+    
+    // Extract JSON block
+    const firstBrace = responseText.indexOf('{');
+    const lastBrace = responseText.lastIndexOf('}');
+    let cleanedJson = responseText;
+    
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      cleanedJson = responseText.substring(firstBrace, lastBrace + 1);
+    }
     
     let quizData;
     try {
       quizData = JSON.parse(cleanedJson);
+      console.log('Successfully parsed JSON:', quizData.title);
     } catch (parseError) {
-      console.error('Failed to parse AI response:', cleanedJson);
+      console.error('Failed to parse AI response. Cleaned JSON was:', cleanedJson);
       res.status(500).json({ error: 'AI returned invalid format.' });
       return;
     }
@@ -81,6 +100,7 @@ You must respond with a strict JSON object (and absolutely nothing else) in the 
     // Determine userId if logged in (from auth middleware, assuming req.user exists if we use it)
     const userId = (req as any).user?.id || null;
 
+    console.log('Saving quiz to database...');
     // Save to DB
     const savedQuiz = await prisma.quiz.create({
       data: {
@@ -104,13 +124,16 @@ You must respond with a strict JSON object (and absolutely nothing else) in the 
 
     // Clean up temporary file
     if (file) {
+      console.log('Cleaning up temporary file:', file.path);
       fs.unlinkSync(file.path);
     }
 
+    console.log('Quiz generated and saved successfully:', savedQuiz.id);
     res.status(200).json(savedQuiz);
-  } catch (error) {
-    console.error('Error generating quiz:', error);
-    res.status(500).json({ error: 'Failed to generate quiz.' });
+  } catch (error: any) {
+    console.error('!!! ERROR in generateQuiz !!!');
+    console.error(error);
+    res.status(500).json({ error: error.message || 'Failed to generate quiz.' });
   }
 };
 
