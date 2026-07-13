@@ -108,7 +108,7 @@ You must respond with a strict JSON object (and absolutely nothing else) in the 
     }
 
     // Determine userId if logged in (from auth middleware, assuming req.user exists if we use it)
-    const userId = (req as any).user?.id || null;
+    const userId = (req as any).user?.userId || null;
 
     console.log('Saving quiz to database...');
     // Save to DB
@@ -169,7 +169,7 @@ export const getQuiz = async (req: Request, res: Response): Promise<void> => {
 
 export const getUserQuizzes = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = (req as any).user?.id;
+    const userId = (req as any).user?.userId;
     if (!userId) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
