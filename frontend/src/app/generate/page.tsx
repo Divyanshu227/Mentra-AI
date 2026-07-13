@@ -10,6 +10,9 @@ export default function GenerateQuiz() {
   const [file, setFile] = useState<File | null>(null);
   const [useWebSearch, setUseWebSearch] = useState(false);
   const [questionCount, setQuestionCount] = useState(5);
+  const [difficulty, setDifficulty] = useState('Medium');
+  const [tone, setTone] = useState('Academic');
+  const [language, setLanguage] = useState('English');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -29,6 +32,9 @@ export default function GenerateQuiz() {
       if (file) formData.append('file', file);
       formData.append('useWebSearch', useWebSearch.toString());
       formData.append('questionCount', questionCount.toString());
+      formData.append('difficulty', difficulty);
+      formData.append('tone', tone);
+      formData.append('language', language);
 
       const res = await fetchApi('/api/quiz/generate', {
         method: 'POST',
@@ -103,20 +109,70 @@ export default function GenerateQuiz() {
             </div>
           </div>
 
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
-              Number of Questions
-            </label>
-            <select
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer"
-              value={questionCount}
-              onChange={(e) => setQuestionCount(Number(e.target.value))}
-            >
-              <option value={5}>5 Questions (Quick Test)</option>
-              <option value={10}>10 Questions (Standard)</option>
-              <option value={15}>15 Questions (Deep Dive)</option>
-              <option value={20}>20 Questions (Mastery)</option>
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-2">
+                Number of Questions
+              </label>
+              <select
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer"
+                value={questionCount}
+                onChange={(e) => setQuestionCount(Number(e.target.value))}
+              >
+                <option value={5}>5 Questions (Quick)</option>
+                <option value={10}>10 Questions (Standard)</option>
+                <option value={15}>15 Questions (Deep)</option>
+                <option value={20}>20 Questions (Mastery)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-2">
+                Difficulty Level
+              </label>
+              <select
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer"
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+              >
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+                <option value="Mixed">Mixed (Adaptive)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-2">
+                Tone & Style
+              </label>
+              <select
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer"
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+              >
+                <option value="Academic">Academic (Formal)</option>
+                <option value="Casual & Fun">Casual & Fun</option>
+                <option value="Professional">Professional</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-2">
+                Language
+              </label>
+              <select
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+              >
+                <option value="English">English</option>
+                <option value="Spanish">Spanish</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+                <option value="Hindi">Hindi</option>
+              </select>
+            </div>
           </div>
 
           <div className="mb-8 flex items-center gap-3 bg-zinc-950 p-4 rounded-xl border border-zinc-800">

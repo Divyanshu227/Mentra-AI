@@ -8,7 +8,7 @@ let genAI: GoogleGenerativeAI;
 
 export const generateQuiz = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { prompt, useWebSearch, questionCount } = req.body;
+    const { prompt, useWebSearch, questionCount, difficulty, tone, language } = req.body;
     const file = req.file; // From multer
 
     if (!prompt && !file) {
@@ -29,12 +29,20 @@ export const generateQuiz = async (req: Request, res: Response): Promise<void> =
     const parts: any[] = [];
 
     const numQuestions = questionCount ? parseInt(questionCount) : 5;
+    const diffText = difficulty ? difficulty : 'Medium';
+    const toneText = tone ? tone : 'Academic';
+    const langText = language ? language : 'English';
+
+    const baseInstruction = `Generate a quiz with EXACTLY ${numQuestions} questions. 
+    The difficulty level must be ${diffText}. 
+    The tone and style of the questions and explanations must be ${toneText}.
+    The entire quiz (questions, options, explanations) MUST be written in ${langText}.`;
 
     // Add prompt
     if (prompt) {
-      parts.push({ text: `Generate a quiz with EXACTLY ${numQuestions} questions based on the following instructions: ${prompt}` });
+      parts.push({ text: `${baseInstruction}\nBased on the following instructions: ${prompt}` });
     } else {
-       parts.push({ text: `Generate a quiz with EXACTLY ${numQuestions} questions based on the provided document.` });
+       parts.push({ text: `${baseInstruction}\nBased on the provided document.` });
     }
     
     // Add strict instructions for JSON format
