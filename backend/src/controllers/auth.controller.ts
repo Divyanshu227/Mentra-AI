@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { prisma } from '../utils/prisma';
 import { generateTokens, verifyRefreshToken, generateAccessToken } from '../utils/jwt';
 import { z } from 'zod';
@@ -82,7 +82,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     
     res.json({ accessToken, user: { id: user.id, email: user.email, name: user.name } });
   } catch (error) {
-    res.status(500).json({ error: 'Login failed' });
+    res.status(500).json({ error: `Login failed: ${(error as Error).message}` });
   }
 };
 
