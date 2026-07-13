@@ -9,6 +9,7 @@ export default function GenerateQuiz() {
   const [prompt, setPrompt] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [useWebSearch, setUseWebSearch] = useState(false);
+  const [questionCount, setQuestionCount] = useState(5);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function GenerateQuiz() {
       if (prompt) formData.append('prompt', prompt);
       if (file) formData.append('file', file);
       formData.append('useWebSearch', useWebSearch.toString());
+      formData.append('questionCount', questionCount.toString());
 
       const res = await fetchApi('/api/quiz/generate', {
         method: 'POST',
@@ -99,6 +101,22 @@ export default function GenerateQuiz() {
                 {!file && <span className="text-zinc-500 text-sm mt-1">or drag and drop</span>}
               </label>
             </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-zinc-300 mb-2">
+              Number of Questions
+            </label>
+            <select
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer"
+              value={questionCount}
+              onChange={(e) => setQuestionCount(Number(e.target.value))}
+            >
+              <option value={5}>5 Questions (Quick Test)</option>
+              <option value={10}>10 Questions (Standard)</option>
+              <option value={15}>15 Questions (Deep Dive)</option>
+              <option value={20}>20 Questions (Mastery)</option>
+            </select>
           </div>
 
           <div className="mb-8 flex items-center gap-3 bg-zinc-950 p-4 rounded-xl border border-zinc-800">
