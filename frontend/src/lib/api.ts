@@ -34,13 +34,31 @@ export const fetchApi = async (url: string, options: RequestInit = {}): Promise<
 
   const response = await fetch(`${BASE_URL}${url}`, fetchOptions);
 
+  // Safely parse JSON to prevent "Unexpected token" crashes on server errors
+  const originalJson = response.json.bind(response);
+  response.json = async () => {
+    const text = await response.clone().text();
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      return { error: text || 'A server error occurred' };
+    }
+  };
+
   if (response.status === 401 && !url.includes('/auth/login') && !url.includes('/auth/refresh')) {
     if (isRefreshing) {
       return new Promise(function(resolve, reject) {
         failedQueue.push({ resolve, reject });
       }).then(token => {
         headers.set('Authorization', `Bearer ${token}`);
-        return fetch(`${BASE_URL}${url}`, { ...fetchOptions, headers });
+        return fetch(`${BASE_URL}${url}`, { ...fetchOptions, headers }).then(res => {
+           const origJson = res.json.bind(res);
+           res.json = async () => {
+             const t = await res.clone().text();
+             try { return JSON.parse(t); } catch(e) { return { error: t || 'A server error occurred' }; }
+           };
+           return res;
+        });
       }).catch(err => {
         return Promise.reject(err);
       });
@@ -65,7 +83,16 @@ export const fetchApi = async (url: string, options: RequestInit = {}): Promise<
       
       // Retry original request
       headers.set('Authorization', `Bearer ${refreshData.accessToken}`);
-      return fetch(`${BASE_URL}${url}`, { ...fetchOptions, headers });
+      const retryResponse = await fetch(`${BASE_URL}${url}`, { ...fetchOptions, headers });
+      retryResponse.json = async () => {
+        const text = await retryResponse.clone().text();
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          return { error: text || 'A server error occurred' };
+        }
+      };
+      return retryResponse;
     } catch (err) {
       processQueue(err, null);
       localStorage.removeItem('accessToken');
@@ -84,3 +111,4 @@ export const fetchApi = async (url: string, options: RequestInit = {}): Promise<
 
   return response;
 };
+
