@@ -27,7 +27,8 @@ export default function GenerateQuiz() {
       if (file) formData.append('file', file);
       formData.append('useWebSearch', useWebSearch.toString());
 
-      const res = await fetch('http://localhost:5000/api/quiz/generate', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${apiUrl}/api/quiz/generate`, {
         method: 'POST',
         body: formData,
       });

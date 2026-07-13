@@ -22,7 +22,8 @@ export default function QuizPage() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/quiz/${id}`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const res = await fetch(`${apiUrl}/api/quiz/${id}`);
         if (!res.ok) throw new Error('Failed to fetch quiz');
         const data = await res.json();
         setQuiz(data);
