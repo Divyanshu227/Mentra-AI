@@ -1,0 +1,79 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { fetchApi } from '@/lib/api';
+import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
+
+export default function ResetPasswordPage() {
+  const [newPassword, setNewPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const token = searchParams.get('token');
+
+  useEffect(() => {
+    if (!token) {
+      setError('Invalid or missing reset token.');
+    }
+  }, [token]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setMessage('');
+
+    try {
+      const res = await fetchApi('/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ token, newPassword })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+
+      setMessage(data.message);
+      setTimeout(() => router.push('/login'), 2000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6 text-red-500">
+        <p className="mb-4">Invalid or missing reset token.</p>
+        <Link href="/login" className="text-blue-500 hover:underline">Go to Login</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-8 shadow-2xl">
+        <h1 className="text-3xl font-bold text-white mb-2 text-center">Set New Password</h1>
+        <p className="text-zinc-400 text-center mb-8">Choose a strong new password.</p>
+        
+        {error && <div className="bg-red-500/10 border border-red-500 text-red-500 p-3 rounded-lg mb-6 text-sm">{error}</div>}
+        {message && <div className="bg-green-500/10 border border-green-500 text-green-500 p-3 rounded-lg mb-6 text-sm">{message}</div>}
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-sm font-medium text-zinc-300 mb-1">New Password</label>
+            <input type="password" required className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" minLength={6} value={newPassword} onChange={e => setNewPassword(e.target.value)} />
+          </div>
+          
+          <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl mt-4 flex justify-center items-center gap-2 transition-all disabled:opacity-50">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Reset Password'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
