@@ -28,7 +28,7 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(data.error || 'Login failed');
 
       localStorage.setItem('accessToken', data.accessToken);
-      router.push('/generate');
+      window.location.href = '/generate';
     } catch (err: any) {
       setError(err.message);
     } finally {

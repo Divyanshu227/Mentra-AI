@@ -29,7 +29,7 @@ export default function RegisterPage() {
       if (!res.ok) throw new Error(data.error || 'Registration failed');
 
       localStorage.setItem('accessToken', data.accessToken);
-      router.push('/generate');
+      window.location.href = '/generate';
     } catch (err: any) {
       setError(err.message);
     } finally {
