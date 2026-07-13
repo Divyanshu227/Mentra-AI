@@ -38,7 +38,7 @@ export default function Header() {
       console.error(err);
     }
     localStorage.removeItem('accessToken');
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
