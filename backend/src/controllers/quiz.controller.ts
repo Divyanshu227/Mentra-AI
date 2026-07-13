@@ -23,7 +23,7 @@ export const generateQuiz = async (req: Request, res: Response): Promise<void> =
     // Determine the model
     const modelName = 'gemini-2.5-flash';
     // For now, web search might require specific tools config for gemini
-    const tools = useWebSearch === 'true' ? [{ googleSearch: {} }] : undefined;
+    const tools: any = useWebSearch === 'true' ? [{ googleSearch: {} }] : undefined;
     const model = genAI.getGenerativeModel({ model: modelName, tools });
 
     const parts: any[] = [];
@@ -151,7 +151,7 @@ export const getQuiz = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const quiz = await prisma.quiz.findUnique({
-      where: { id },
+      where: { id: id as string },
       include: { questions: true },
     });
 
