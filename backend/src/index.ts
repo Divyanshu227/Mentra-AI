@@ -20,6 +20,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/uploads', express.static('uploads'));
 
+app.get('/', (req, res) => {
+  res.send('Mentra AI Backend is up and running!');
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Mentra AI backend is running.' });
 });
