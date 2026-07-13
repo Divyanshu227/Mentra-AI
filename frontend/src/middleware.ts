@@ -21,10 +21,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/generate', request.url));
   }
 
-  // Also protect the root route if you want it to require auth
-  if (request.nextUrl.pathname === '/' && !refreshToken) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
 
   return NextResponse.next();
 }

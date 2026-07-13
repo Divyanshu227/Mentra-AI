@@ -91,9 +91,14 @@ export default function Header() {
 
   return (
     <header className="h-16 border-b border-zinc-800 bg-zinc-950 flex items-center justify-between px-6 sticky top-0 z-50">
-      <Link href="/generate" className="text-xl font-bold text-white flex items-center gap-2">
-        <span className="text-blue-500">Mentra</span>AI
-      </Link>
+      <div className="flex items-center gap-6">
+        <Link href="/generate" className="text-xl font-bold text-white flex items-center gap-2">
+          <span className="text-blue-500">Mentra</span>AI
+        </Link>
+        <Link href="/docs" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+          Documentation
+        </Link>
+      </div>
 
       {user ? (
         <div className="relative" ref={dropdownRef}>
