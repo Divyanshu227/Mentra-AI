@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Upload, Loader2, Sparkles, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { fetchApi } from '@/lib/api';
 
 export default function GenerateQuiz() {
   const [prompt, setPrompt] = useState('');
@@ -27,8 +28,7 @@ export default function GenerateQuiz() {
       if (file) formData.append('file', file);
       formData.append('useWebSearch', useWebSearch.toString());
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const res = await fetch(`${apiUrl}/api/quiz/generate`, {
+      const res = await fetchApi('/api/quiz/generate', {
         method: 'POST',
         body: formData,
       });

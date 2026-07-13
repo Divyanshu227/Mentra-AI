@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Loader2, CheckCircle, XCircle, ArrowRight, RotateCcw } from 'lucide-react';
+import { fetchApi } from '@/lib/api';
 
 export default function QuizPage() {
   const params = useParams();
@@ -22,8 +23,7 @@ export default function QuizPage() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const res = await fetch(`${apiUrl}/api/quiz/${id}`);
+        const res = await fetchApi(`/api/quiz/${id}`);
         if (!res.ok) throw new Error('Failed to fetch quiz');
         const data = await res.json();
         setQuiz(data);

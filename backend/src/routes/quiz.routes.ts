@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { generateQuiz, getQuiz } from '../controllers/quiz.controller';
+import { authenticate } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -8,7 +9,7 @@ const router = Router();
 const upload = multer({ dest: 'uploads/' });
 
 // Routes
-router.post('/generate', upload.single('file'), generateQuiz);
-router.get('/:id', getQuiz);
+router.post('/generate', authenticate, upload.single('file'), generateQuiz);
+router.get('/:id', authenticate, getQuiz);
 
 export default router;
