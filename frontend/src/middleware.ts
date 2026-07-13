@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get('refreshToken');
   
   // Define protected routes
-  const protectedRoutes = ['/generate', '/quiz'];
+  const protectedRoutes = ['/generate', '/quiz', '/history'];
   const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
 
   // Define auth routes (login, register, etc.)
