@@ -70,8 +70,9 @@ export const fetchApi = async (url: string, options: RequestInit = {}): Promise<
       processQueue(err, null);
       localStorage.removeItem('accessToken');
       if (typeof window !== 'undefined') {
-        const authPages = ['/login', '/register', '/forgot-password', '/reset-password'];
-        if (!authPages.includes(window.location.pathname)) {
+        const protectedRoutes = ['/generate', '/quiz'];
+        const isProtected = protectedRoutes.some(route => window.location.pathname.startsWith(route));
+        if (isProtected) {
           window.location.href = '/login';
         }
       }
