@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { fetchApi } from '@/lib/api';
 import { LogOut, Upload, User as UserIcon, Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -72,6 +73,7 @@ export default function Header() {
   const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
   const avatarUrl = user?.avatarUrl ? `${backendUrl}${user.avatarUrl}` : null;
   const initial = user?.name ? user.name.charAt(0).toUpperCase() : '?';
+  const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password'].includes(pathname);
 
   return (
     <header className="h-16 border-b border-zinc-800 bg-zinc-950 flex items-center justify-between px-6 sticky top-0 z-50">
@@ -127,9 +129,11 @@ export default function Header() {
           />
         </div>
       ) : (
-        <Link href="/login" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-          Sign In
-        </Link>
+        !isAuthPage && (
+          <Link href="/login" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+            Sign In
+          </Link>
+        )
       )}
     </header>
   );
