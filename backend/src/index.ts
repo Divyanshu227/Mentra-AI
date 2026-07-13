@@ -18,6 +18,7 @@ import quizRoutes from './routes/quiz.routes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/quiz', quizRoutes);
+app.use('/uploads', express.static('uploads'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Mentra AI backend is running.' });

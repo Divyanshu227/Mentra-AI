@@ -188,3 +188,55 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: 'Logout failed' });
   }
 };
+
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, email: true, avatarUrl: true }
+    });
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    res.json({ user });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch user' });
+  }
+};
+
+export const uploadAvatar = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const file = req.file;
+    if (!file) {
+      res.status(400).json({ error: 'No file uploaded' });
+      return;
+    }
+
+    const avatarUrl = `/uploads/${file.filename}`;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl },
+      select: { id: true, name: true, email: true, avatarUrl: true }
+    });
+
+    res.json({ message: 'Avatar updated successfully', user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to upload avatar' });
+  }
+};
