@@ -14,6 +14,20 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -82,7 +96,7 @@ export default function Header() {
       </Link>
 
       {user ? (
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <button 
             onClick={() => setDropdownOpen(!dropdownOpen)}
             className="w-10 h-10 rounded-full border-2 border-zinc-700 hover:border-blue-500 transition-colors flex items-center justify-center bg-zinc-800 overflow-hidden"
