@@ -70,7 +70,10 @@ export const fetchApi = async (url: string, options: RequestInit = {}): Promise<
       processQueue(err, null);
       localStorage.removeItem('accessToken');
       if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        const authPages = ['/login', '/register', '/forgot-password', '/reset-password'];
+        if (!authPages.includes(window.location.pathname)) {
+          window.location.href = '/login';
+        }
       }
       return Promise.reject(err);
     } finally {
